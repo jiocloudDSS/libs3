@@ -112,7 +112,7 @@ static char putenvBufG[256];
 #define CONTENT_ENCODING_PREFIX_LEN (sizeof(CONTENT_ENCODING_PREFIX) - 1)
 #define EXPIRES_PREFIX "expires="
 #define EXPIRES_PREFIX_LEN (sizeof(EXPIRES_PREFIX) - 1)
-#define X_AMZ_META_PREFIX "x-amz-meta-"
+#define X_AMZ_META_PREFIX "x-jcs-meta-" //<<<<<< used to be amz
 #define X_AMZ_META_PREFIX_LEN (sizeof(X_AMZ_META_PREFIX) - 1)
 #define IF_MODIFIED_SINCE_PREFIX "ifModifiedSince="
 #define IF_MODIFIED_SINCE_PREFIX_LEN (sizeof(IF_MODIFIED_SINCE_PREFIX) - 1)
@@ -253,7 +253,7 @@ static void usageExit(FILE *out)
 "                          with object\n"
 "     [expires]          : Expiration date to associate with object\n"
 "     [cannedAcl]        : Canned ACL for the object (see Canned ACLs)\n"
-"     [x-amz-meta-...]]  : Metadata headers to associate with the object\n"
+"     [x-jcs-meta-...]]  : Metadata headers to associate with the object\n"
 "\n"
 "   copy                 : Copies an object; if any options are set, the "
                           "entire\n"
@@ -270,7 +270,7 @@ static void usageExit(FILE *out)
 "                          with object\n"
 "     [expires]          : Expiration date to associate with object\n"
 "     [cannedAcl]        : Canned ACL for the object (see Canned ACLs)\n"
-"     [x-amz-meta-...]]  : Metadata headers to associate with the object\n"
+"     [x-jcs-meta-...]]  : Metadata headers to associate with the object\n"
 "\n"
 "   get                  : Gets an object\n"
 "     <buckey>/<key>     : Bucket/key of object to get\n"
@@ -739,7 +739,7 @@ static S3Status responsePropertiesCallback
     }
     int i;
     for (i = 0; i < properties->metaDataCount; i++) {
-        printf("x-amz-meta-%s: %s\n", properties->metaData[i].name,
+        printf("x-jcs-meta-%s: %s\n", properties->metaData[i].name,
                properties->metaData[i].value);
     }
 
@@ -1470,7 +1470,7 @@ static void put_object(int argc, char **argv, int optindex)
         }
         else if (!strncmp(param, X_AMZ_META_PREFIX, X_AMZ_META_PREFIX_LEN)) {
             if (metaPropertiesCount == S3_MAX_METADATA_COUNT) {
-                fprintf(stderr, "\nERROR: Too many x-amz-meta- properties, "
+                fprintf(stderr, "\nERROR: Too many x-jcs-meta- properties, "
                         "limit %lu: %s\n", 
                         (unsigned long) S3_MAX_METADATA_COUNT, param);
                 usageExit(stderr);
@@ -1718,7 +1718,7 @@ static void copy_object(int argc, char **argv, int optindex)
         }
         else if (!strncmp(param, X_AMZ_META_PREFIX, X_AMZ_META_PREFIX_LEN)) {
             if (metaPropertiesCount == S3_MAX_METADATA_COUNT) {
-                fprintf(stderr, "\nERROR: Too many x-amz-meta- properties, "
+                fprintf(stderr, "\nERROR: Too many x-jcs-meta- properties, "
                         "limit %lu: %s\n", 
                         (unsigned long) S3_MAX_METADATA_COUNT, param);
                 usageExit(stderr);

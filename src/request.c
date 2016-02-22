@@ -51,16 +51,16 @@ char defaultHostNameG[S3_MAX_HOSTNAME_SIZE];
 
 typedef struct RequestComputedValues
 {
-    // All x-amz- headers, in normalized form (i.e. NAME: VALUE, no other ws)
+    // All x-jcs- headers, in normalized form (i.e. NAME: VALUE, no other ws)
     char *amzHeaders[S3_MAX_METADATA_COUNT + 2]; // + 2 for acl and date
 
-    // The number of x-amz- headers
+    // The number of x-jcs- headers
     int amzHeadersCount;
 
-    // Storage for amzHeaders (the +256 is for x-amz-acl and x-amz-date)
+    // Storage for amzHeaders (the +256 is for x-jcs-acl and x-jcs-date)
     char amzHeadersRaw[COMPACTED_METADATA_BUFFER_SIZE + 256 + 1];
 
-    // Canonicalized x-amz- headers
+    // Canonicalized x-jcs- headers
     string_multibuffer(canonicalizedAmzHeaders,
                        COMPACTED_METADATA_BUFFER_SIZE + 256 + 1);
 
@@ -237,15 +237,15 @@ static size_t curl_write_func(void *ptr, size_t size, size_t nmemb,
 }
 
 
-// This function 'normalizes' all x-amz-meta headers provided in
+// This function 'normalizes' all x-jcs-meta headers provided in
 // params->requestHeaders, which means it removes all whitespace from
 // them such that they all look exactly like this:
-// x-amz-meta-${NAME}: ${VALUE}
-// It also adds the x-amz-acl, x-amz-copy-source, and x-amz-metadata-directive
-// headers if necessary, and always adds the x-amz-date header.  It copies the
+// x-jcs-meta-${NAME}: ${VALUE}
+// It also adds the x-jcs-acl, x-jcs-copy-source, and x-jcs-metadata-directive
+// headers if necessary, and always adds the x-jcs-date header.  It copies the
 // raw string values into params->amzHeadersRaw, and creates an array of
 // string pointers representing these headers in params->amzHeaders (and also
-// sets params->amzHeadersCount to be the count of the total number of x-amz-
+// sets params->amzHeadersCount to be the count of the total number of x-jcs-
 // headers thus created).
 static S3Status compose_amz_headers(const RequestParams *params,
                                     RequestComputedValues *values)
@@ -295,7 +295,7 @@ static S3Status compose_amz_headers(const RequestParams *params,
         }                                                               \
     } while (0)
 
-    // Check and copy in the x-amz-meta headers
+    // Check and copy in the x-jcs-meta headers
     if (properties) {
         int i;
         for (i = 0; i < properties->metaDataCount; i++) {
@@ -310,7 +310,7 @@ static S3Status compose_amz_headers(const RequestParams *params,
             headers_append(0, ": %s", property->value);
         }
 
-        // Add the x-amz-acl header, if necessary
+        // Add the x-jcs-acl header, if necessary
         const char *cannedAclString;
         switch (params->putProperties->cannedAcl) {
         case S3CannedAclPrivate:
@@ -327,27 +327,27 @@ static S3Status compose_amz_headers(const RequestParams *params,
             break;
         }
         if (cannedAclString) {
-            headers_append(1, "x-amz-acl: %s", cannedAclString);
+            headers_append(1, "x-jcs-acl: %s", cannedAclString);
         }
     }
 
-    // Add the x-amz-date header
+    // Add the x-jcs-date header
     time_t now = time(NULL);
     char date[64];
     strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S GMT", gmtime(&now));
-    headers_append(1, "x-amz-date: %s", date);
+    headers_append(1, "x-jcs-date: %s", date);
 
     if (params->httpRequestType == HttpRequestTypeCOPY) {
-        // Add the x-amz-copy-source header
+        // Add the x-jcs-copy-source header
         if (params->copySourceBucketName && params->copySourceBucketName[0] &&
             params->copySourceKey && params->copySourceKey[0]) {
-            headers_append(1, "x-amz-copy-source: /%s/%s",
+            headers_append(1, "x-jcs-copy-source: /%s/%s",
                            params->copySourceBucketName,
                            params->copySourceKey);
         }
-        // And the x-amz-metadata-directive header
+        // And the x-jcs-metadata-directive header
         if (params->putProperties) {
-            headers_append(1, "%s", "x-amz-metadata-directive: REPLACE");
+            headers_append(1, "%s", "x-jcs-metadata-directive: REPLACE");
         }
     }
 
@@ -566,7 +566,7 @@ static void header_gnome_sort(const char **headers, int size)
 }
 
 
-// Canonicalizes the x-amz- headers into the canonicalizedAmzHeaders buffer
+// Canonicalizes the x-jcs- headers into the canonicalizedAmzHeaders buffer
 static void canonicalize_amz_headers(RequestComputedValues *values)
 {
     // Make a copy of the headers that will be sorted
@@ -713,7 +713,7 @@ static S3Status compose_auth_header(const RequestParams *params,
         ("%s\n", values->contentTypeHeader[0] ? 
          &(values->contentTypeHeader[sizeof("Content-Type: ") - 1]) : "");
 
-    signbuf_append("%s", "\n"); // Date - we always use x-amz-date
+    signbuf_append("%s", "\n"); // Date - we always use x-jcs-date
 
     signbuf_append("%s", values->canonicalizedAmzHeaders);
 
@@ -901,7 +901,7 @@ static S3Status setup_curl(Request *request,
     append_standard_header(rangeHeader);
     append_standard_header(authorizationHeader);
 
-    // Append x-amz- headers
+    // Append x-jcs- headers
     int i;
     for (i = 0; i < values->amzHeadersCount; i++) {
         request->headers = 
