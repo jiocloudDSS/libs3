@@ -140,7 +140,7 @@ extern "C" {
 
 /**
  * S3_MAX_METADATA_SIZE is the maximum number of bytes allowed for
- * x-amz-meta header names and values in any request passed to Amazon S3
+ * x-jcs-meta header names and values in any request passed to Amazon S3
  **/
 #define S3_MAX_METADATA_SIZE               2048
 
@@ -148,15 +148,15 @@ extern "C" {
 /**
  * S3_METADATA_HEADER_NAME_PREFIX is the prefix of an S3 "meta header"
  **/
-#define S3_METADATA_HEADER_NAME_PREFIX     "x-amz-meta-"
+#define S3_METADATA_HEADER_NAME_PREFIX     "x-jcs-meta-" //<<<<<< This used to be x-amz-meta-
 
 
 /**
- * S3_MAX_METADATA_COUNT is the maximum number of x-amz-meta- headers that
+ * S3_MAX_METADATA_COUNT is the maximum number of x-jcs-meta- headers that
  * could be included in a request to S3.  The smallest meta header is
- * "x-amz-meta-n: v".  Since S3 doesn't count the ": " against the total, the
+ * "x-jcs-meta-n: v".  Since S3 doesn't count the ": " against the total, the
  * smallest amount of data to count for a header would be the length of
- * "x-amz-meta-nv".
+ * "x-jcs-meta-nv".
  **/
 #define S3_MAX_METADATA_COUNT \
     (S3_MAX_METADATA_SIZE / (sizeof(S3_METADATA_HEADER_NAME_PREFIX "nv") - 1))
@@ -565,7 +565,7 @@ typedef struct S3ResponseProperties
     /**
      * These are the meta data associated with the resource.  In each case,
      * the name will not include any S3-specific header prefixes
-     * (i.e. x-amz-meta- will have been removed from the beginning), and
+     * (i.e. x-jcs-meta- will have been removed from the beginning), and
      * leading and trailing whitespace will have been stripped from the value.
      **/
     const S3NameValue *metaData;
@@ -778,7 +778,7 @@ typedef struct S3PutProperties
     /**
      * These are the meta data to pass to S3.  In each case, the name part of
      * the Name - Value pair should not include any special S3 HTTP header
-     * prefix (i.e., should be of the form 'foo', NOT 'x-amz-meta-foo').
+     * prefix (i.e., should be of the form 'foo', NOT 'x-jcs-meta-foo').
      **/
     const S3NameValue *metaData;
 } S3PutProperties;

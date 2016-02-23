@@ -112,13 +112,13 @@ void response_headers_handler_add(ResponseHeadersHandler *handler,
 
     int valuelen = (end - c) + 1, fit;
 
-    if (!strncmp(header, "x-amz-request-id", namelen)) {
+    if (!strncmp(header, "x-jcs-request-id", namelen)) {
         responseProperties->requestId = 
             string_multibuffer_current(handler->responsePropertyStrings);
         string_multibuffer_add(handler->responsePropertyStrings, c, 
                                valuelen, fit);
     }
-    else if (!strncmp(header, "x-amz-id-2", namelen)) {
+    else if (!strncmp(header, "x-jcs-id-2", namelen)) {
         responseProperties->requestId2 = 
             string_multibuffer_current(handler->responsePropertyStrings);
         string_multibuffer_add(handler->responsePropertyStrings, c, 
@@ -151,7 +151,7 @@ void response_headers_handler_add(ResponseHeadersHandler *handler,
     }
     else if (!strncmp(header, S3_METADATA_HEADER_NAME_PREFIX, 
                       sizeof(S3_METADATA_HEADER_NAME_PREFIX) - 1)) {
-        // Make sure there is room for another x-amz-meta header
+        // Make sure there is room for another x-jcs-meta header
         if (handler->responseProperties.metaDataCount ==
             sizeof(handler->responseMetaData)) {
             return;
